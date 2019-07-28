@@ -7,9 +7,18 @@ export interface ICategoryModel extends Document {
 }
 
 export var CategorySchema: Schema = new Schema({
-    name: String,
+    name: {
+        type: String,
+        unique: true,
+        required: true,
+        trim: true
+    },
     parent: String,
-    path: String
+    path: {
+        type: String,
+        required: true,
+        trim: true
+    }
 }, { collection: 'category' });
 
 export const Category: Model<ICategoryModel> = model<ICategoryModel>("Category", CategorySchema);

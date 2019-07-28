@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { Category } from '../models/category';
 
@@ -7,11 +8,23 @@ export class CategoryRouter {
     public router = express.Router();
 
     constructor() {
+        this.initRoutes();
+    }
 
-        this.router.get("/category", (request: Request, response: Response) => {
-            response.send({ category: "category get respone" });
+    private initRoutes() {
+        this.setGetCategoryRoute();
+        this.setSaveCategoryRoute();
+        this.setGetCategoriesRoute();
+    }
+
+    private setGetCategoryRoute() {
+        this.router.get("/category/:name", async (request: Request, response: Response) => {
+            const category = await Category.findOne({ name: request.params.name });
+            response.send(category);
         });
+    }
 
+    private setSaveCategoryRoute() {
         this.router.post("/category", async (request: Request, response: Response) => {
 
             let parentPath = "";
@@ -24,24 +37,23 @@ export class CategoryRouter {
             const category = new Category(request.body);
             category.path = parentPath + '/' + category.name;
             try {
-                category.save().then(() => {
-                    response.status(201).send({ message: "Success" });
+                Category.findOneAndUpdate({ _id: mongoose.Types.ObjectId(category._id) }, category, { upsert: true }).then(() => {
+                    response.status(201).send(category);
                 }).catch((error) => {
-                    response.status(201).send({ message: "Error" });
+                    response.status(500).send(error);
                 })
 
             } catch (error) {
-                response.status(400).send(error);
+                response.status(500).send(error);
             }
-
         });
+    }
 
+    private setGetCategoriesRoute() {
         this.router.get("/categories", (request: Request, response: Response) => {
-
             Category.find(((error, res) => {
                 response.send(res);
             }))
         })
-
     }
 }
