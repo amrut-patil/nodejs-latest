@@ -8,29 +8,40 @@ export class CategoryRouter {
 
     constructor() {
 
-        this.router.get("/category", (req: Request, res: Response) => {
+        this.router.get("/category", (request: Request, response: Response) => {
+            response.send({ category: "category get respone" });
+        });
 
-            console.log("---------- category get called ----------");
-            res.send({ category: "category get respone" });
-        })
+        this.router.post("/category", async (request: Request, response: Response) => {
 
-        this.router.post("/category", (req: Request, res: Response) => {
+            let parentPath = "";
+            if (request.body.parent) {
+                let parentCategory: any = await Category.findOne({ name: request.body.parent });
+                if (parentCategory)
+                    parentPath = parentCategory.path;
+            }
 
-            console.log("---------- category post called ----------");
-            console.log(req.body);
-
-            const category = new Category(req.body);
+            const category = new Category(request.body);
+            category.path = parentPath + '/' + category.name;
             try {
                 category.save().then(() => {
-                    res.status(201).send({ message: "Success" });
+                    response.status(201).send({ message: "Success" });
                 }).catch((error) => {
-                    res.status(201).send({ message: "Error" });
+                    response.status(201).send({ message: "Error" });
                 })
 
             } catch (error) {
-                res.status(400).send(error);
+                response.status(400).send(error);
             }
 
+        });
+
+        this.router.get("/categories", (request: Request, response: Response) => {
+
+            Category.find(((error, res) => {
+                response.send(res);
+            }))
         })
+
     }
 }
