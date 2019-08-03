@@ -2,11 +2,13 @@ import * as express from 'express';
 import { Request, Response } from 'express';
 import { CategoryRouter } from './routes/category'
 import { MongooseDB } from './db/mongoose';
+import { ProductRouter } from './routes/product';
 
 export class StoreApplication {
 
     public app;
     public categoryRouter;
+    public productRouter;
 
     constructor() {
         this.initDB();
@@ -34,6 +36,9 @@ export class StoreApplication {
     private initRoutes() {
         this.categoryRouter = new CategoryRouter();
         this.app.use(this.categoryRouter.router);
+
+        this.productRouter = new ProductRouter();
+        this.app.use(this.productRouter.router);
 
         this.app.get('/', (req: Request, res: Response) => {
             console.log("----------  node server get called ----------");

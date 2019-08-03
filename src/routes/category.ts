@@ -38,7 +38,7 @@ export class CategoryRouter {
             const category = new Category(request.body);
             category.path = parentPath + '/' + category.name;
             try {
-                Category.findOneAndUpdate({ _id: mongoose.Types.ObjectId(category._id) }, category, { upsert: true }).then(() => {
+                Category.findOneAndUpdate({ _id: mongoose.Types.ObjectId(category._id) }, category, { upsert: true, runValidators: true }).then(() => {
                     response.status(201).send(category);
                 }).catch((error) => {
                     response.status(500).send(error);
