@@ -15,6 +15,7 @@ export class CategoryRouter {
         this.setGetCategoryRoute();
         this.setSaveCategoryRoute();
         this.setGetCategoriesRoute();
+        this.setGetFilteredCategoriesRoute();
     }
 
     private setGetCategoryRoute() {
@@ -52,6 +53,14 @@ export class CategoryRouter {
     private setGetCategoriesRoute() {
         this.router.get("/categories", (request: Request, response: Response) => {
             Category.find(((error, res) => {
+                response.send(res);
+            }))
+        })
+    }
+
+    private setGetFilteredCategoriesRoute() {
+        this.router.get("/categories/:name", (request: Request, response: Response) => {          
+            Category.find({name: { $regex: '.*' + request.params.name + '.*' } }, ((error, res) => {
                 response.send(res);
             }))
         })
