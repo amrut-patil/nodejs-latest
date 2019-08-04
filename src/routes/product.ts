@@ -13,6 +13,7 @@ export class ProductRouter {
 
     private initRoutes() {
         this.setSaveProductRoute();
+        this.setGetProductsRoute();
     }
 
     private setSaveProductRoute() {
@@ -30,5 +31,14 @@ export class ProductRouter {
             }
         })
     }
+
+    private setGetProductsRoute() {
+        this.router.get("/products", (request: Request, response: Response) => {
+            Product.find(((error, res) => {
+                response.send(res);
+            }))
+        })
+    }
+
 }
 
