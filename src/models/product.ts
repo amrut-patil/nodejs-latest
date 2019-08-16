@@ -15,6 +15,9 @@ export var ProductSchema: Schema = new Schema({
     categories: {
         type: String,
         required: true
+    },
+    attributes: {
+        type: Array
     }
 }, { collection: 'product' });
 

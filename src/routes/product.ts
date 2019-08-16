@@ -12,8 +12,24 @@ export class ProductRouter {
     }
 
     private initRoutes() {
-        this.setSaveProductRoute();
+        this.setGetProductRoute();
         this.setGetProductsRoute();
+        this.setSaveProductRoute();
+    }
+
+    private setGetProductRoute() {
+        this.router.get("/product/:name", async (request: Request, response: Response) => {
+            const product = await Product.findOne({ name: request.params.name });
+            response.send(product);
+        });
+    }
+
+    private setGetProductsRoute() {
+        this.router.get("/products", (request: Request, response: Response) => {
+            Product.find(((error, res) => {
+                response.send(res);
+            }))
+        })
     }
 
     private setSaveProductRoute() {
@@ -29,14 +45,6 @@ export class ProductRouter {
             } catch (error) {
                 response.status(500).send(error);
             }
-        })
-    }
-
-    private setGetProductsRoute() {
-        this.router.get("/products", (request: Request, response: Response) => {
-            Product.find(((error, res) => {
-                response.send(res);
-            }))
         })
     }
 
