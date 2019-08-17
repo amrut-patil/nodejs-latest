@@ -16,6 +16,7 @@ export class ProductRouter {
         this.setGetProductRoute();
         this.setGetProductsRoute();
         this.setSaveProductRoute();
+        this.setDeleteProductRoute();
     }
 
     private setGetProductRoute() {
@@ -38,7 +39,7 @@ export class ProductRouter {
 
             const product = new Product(request.body);
             try {
-                Product.findOneAndUpdate({ _id: mongoose.Types.ObjectId(product._id) }, product, { upsert: true, runValidators: true }).then(() => {                    
+                Product.findOneAndUpdate({ _id: mongoose.Types.ObjectId(product._id) }, product, { upsert: true, runValidators: true }).then(() => {
                     this.sendRealtimeUpdate(product, request.body._id ? ApplicationConstants.UPDATE : ApplicationConstants.INSERT);
                     response.status(201).send(product);
 
@@ -48,6 +49,17 @@ export class ProductRouter {
             } catch (error) {
                 response.status(500).send(error);
             }
+        })
+    }
+
+    private setDeleteProductRoute() {
+        this.router.delete('/product/:id', (request: Request, response: Response) => {
+            Product.findByIdAndDelete({ _id: mongoose.Types.ObjectId(request.params.id) }).then((product) => {
+                this.sendRealtimeUpdate(product, ApplicationConstants.DELETE);
+                response.status(204).send();
+            }).catch((error) => {
+                response.status(409).send(error);
+            })
         })
     }
 

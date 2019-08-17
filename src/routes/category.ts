@@ -17,6 +17,7 @@ export class CategoryRouter {
         this.setGetCategoriesRoute();
         this.setGetFilteredCategoriesRoute();
         this.setSaveCategoryRoute();
+        this.setDeleteCategoryRoute();
     }
 
     private setGetCategoryRoute() {
@@ -65,6 +66,17 @@ export class CategoryRouter {
             } catch (error) {
                 response.status(500).send(error);
             }
+        });
+    }
+
+    private setDeleteCategoryRoute() {
+        this.router.delete("/category/:id", (request: Request, response: Response) => {
+            Category.findByIdAndDelete({ _id: mongoose.Types.ObjectId(request.params.id) }).then((category) => {
+                this.sendRealtimeUpdate(category, ApplicationConstants.DELETE);
+                response.status(204).send();
+            }).catch((error) => {
+                response.status(409).send(error);
+            })
         });
     }
 
