@@ -9,11 +9,16 @@ export class StoreApplication {
     public app;
     public categoryRouter;
     public productRouter;
+    public ioServer;
+    public httpServer;
+
+    public sockets = new Set();
 
     constructor() {
         this.initDB();
         this.initExpress();
-        this.initRoutes();
+        this.initIO();
+        this.initRoutes(this.sockets);
     }
 
     private initDB() {
@@ -33,16 +38,35 @@ export class StoreApplication {
         this.app.use(express.json());
     }
 
-    private initRoutes() {
-        this.categoryRouter = new CategoryRouter();
+    private initIO() {
+
+        this.httpServer = require("http").Server(this.app);
+        this.ioServer = require("socket.io")(this.httpServer);
+
+        this.ioServer.on('connection', socket => {
+
+            this.sockets.add(socket);
+            console.log(`Socket ${socket.id} added`);
+
+            socket.on('disconnect', () => {
+                console.log(`Deleting socket: ${socket.id}`);
+                this.sockets.delete(socket);
+                console.log(`Remaining sockets: ${this.sockets.size}`);
+            });
+
+        });
+    }
+
+    private initRoutes(sockets: any) {
+        this.categoryRouter = new CategoryRouter(sockets);
         this.app.use(this.categoryRouter.router);
 
-        this.productRouter = new ProductRouter();
+        this.productRouter = new ProductRouter(sockets);
         this.app.use(this.productRouter.router);
 
-        this.app.get('/', (req: Request, res: Response) => {
-            console.log("----------  node server get called ----------");
-            res.send({ sample: "test" })
-        });
+        // this.app.get('/', (req: Request, res: Response) => {
+        //     console.log("----------  node server get called ----------");
+        //     res.send({ sample: "test" })
+        // });
     }
 }

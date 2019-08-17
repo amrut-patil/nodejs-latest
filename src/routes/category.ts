@@ -2,12 +2,13 @@ import * as express from 'express';
 import * as mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { Category } from '../models/category';
+import { ApplicationConstants } from '../appConstants';
 
 export class CategoryRouter {
 
     public router = express.Router();
 
-    constructor() {
+    constructor(private sockets: any) {
         this.initRoutes();
     }
 
@@ -55,6 +56,7 @@ export class CategoryRouter {
             category.path = parentPath + '/' + category.name;
             try {
                 Category.findOneAndUpdate({ _id: mongoose.Types.ObjectId(category._id) }, category, { upsert: true, runValidators: true }).then(() => {
+                    this.sendRealtimeUpdate(category, request.body._id ? ApplicationConstants.UPDATE : ApplicationConstants.INSERT);
                     response.status(201).send(category);
                 }).catch((error) => {
                     response.status(500).send(error);
@@ -64,6 +66,18 @@ export class CategoryRouter {
                 response.status(500).send(error);
             }
         });
+    }
+
+    private sendRealtimeUpdate(category, operation) {
+        for (const s of this.sockets) {
+            let t: any = s;
+            t.emit('category', {
+                data: {
+                    operation: operation,
+                    category: category
+                }
+            });
+        }
     }
 
 }

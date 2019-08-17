@@ -6,6 +6,6 @@ const {
 
 let storeApplication: StoreApplication = new StoreApplication();
 
-storeApplication.app.listen(PORT, () => {
+storeApplication.httpServer.listen(PORT, () => {
   console.log('server started at http://localhost:' + PORT);
 });
