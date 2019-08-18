@@ -3,12 +3,14 @@ import { Request, Response } from 'express';
 import { CategoryRouter } from './routes/category'
 import { MongooseDB } from './db/mongoose';
 import { ProductRouter } from './routes/product';
+import { UserRouter } from './routes/user';
 
 export class StoreApplication {
 
     public app;
     public categoryRouter;
     public productRouter;
+    public userRouter;
     public ioServer;
     public httpServer;
 
@@ -64,6 +66,9 @@ export class StoreApplication {
 
         this.productRouter = new ProductRouter(sockets);
         this.app.use(this.productRouter.router);
+
+        this.userRouter = new UserRouter();
+        this.app.use(this.userRouter.router);
 
         // this.app.get('/', (req: Request, res: Response) => {
         //     console.log("----------  node server get called ----------");
