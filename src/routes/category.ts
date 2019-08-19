@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { Category } from '../models/category';
 import { ApplicationConstants } from '../appConstants';
+import { Authentication } from '../middleware/authentication';
 
 export class CategoryRouter {
 
@@ -21,14 +22,14 @@ export class CategoryRouter {
     }
 
     private setGetCategoryRoute() {
-        this.router.get("/category/:name", async (request: Request, response: Response) => {
+        this.router.get("/category/:name", Authentication.authenticate, async (request: Request, response: Response) => {
             const category = await Category.findOne({ name: request.params.name });
             response.send(category);
         });
     }
 
     private setGetCategoriesRoute() {
-        this.router.get("/categories", (request: Request, response: Response) => {
+        this.router.get("/categories", Authentication.authenticate, (request: Request, response: Response) => {
             Category.find(((error, res) => {
                 response.send(res);
             }))
@@ -36,7 +37,7 @@ export class CategoryRouter {
     }
 
     private setGetFilteredCategoriesRoute() {
-        this.router.get("/categories/:name", (request: Request, response: Response) => {
+        this.router.get("/categories/:name", Authentication.authenticate, (request: Request, response: Response) => {
             Category.find({ name: { $regex: '.*' + request.params.name + '.*' } }, ((error, res) => {
                 response.send(res);
             }))
@@ -44,7 +45,7 @@ export class CategoryRouter {
     }
 
     private setSaveCategoryRoute() {
-        this.router.post("/category", async (request: Request, response: Response) => {
+        this.router.post("/category", Authentication.authenticate, async (request: Request, response: Response) => {
 
             let parentPath = "";
             if (request.body.parent) {
@@ -70,7 +71,7 @@ export class CategoryRouter {
     }
 
     private setDeleteCategoryRoute() {
-        this.router.delete("/category/:id", (request: Request, response: Response) => {
+        this.router.delete("/category/:id", Authentication.authenticate, (request: Request, response: Response) => {
             Category.findByIdAndDelete({ _id: mongoose.Types.ObjectId(request.params.id) }).then((category) => {
                 this.sendRealtimeUpdate(category, ApplicationConstants.DELETE);
                 response.status(204).send();

@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { Product } from '../models/product';
 import { ApplicationConstants } from '../appConstants';
+import { Authentication } from '../middleware/authentication';
 
 export class ProductRouter {
 
@@ -20,14 +21,14 @@ export class ProductRouter {
     }
 
     private setGetProductRoute() {
-        this.router.get("/product/:name", async (request: Request, response: Response) => {
+        this.router.get("/product/:name", Authentication.authenticate, async (request: Request, response: Response) => {
             const product = await Product.findOne({ name: request.params.name });
             response.send(product);
         });
     }
 
     private setGetProductsRoute() {
-        this.router.get("/products", (request: Request, response: Response) => {
+        this.router.get("/products", Authentication.authenticate, (request: Request, response: Response) => {
             Product.find(((error, res) => {
                 response.send(res);
             }))
@@ -35,7 +36,7 @@ export class ProductRouter {
     }
 
     private setSaveProductRoute() {
-        this.router.post('/product', (request: Request, response: Response) => {
+        this.router.post('/product', Authentication.authenticate, (request: Request, response: Response) => {
 
             const product = new Product(request.body);
             try {
@@ -53,7 +54,7 @@ export class ProductRouter {
     }
 
     private setDeleteProductRoute() {
-        this.router.delete('/product/:id', (request: Request, response: Response) => {
+        this.router.delete('/product/:id', Authentication.authenticate, (request: Request, response: Response) => {
             Product.findByIdAndDelete({ _id: mongoose.Types.ObjectId(request.params.id) }).then((product) => {
                 this.sendRealtimeUpdate(product, ApplicationConstants.DELETE);
                 response.status(204).send();
