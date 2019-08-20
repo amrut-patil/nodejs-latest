@@ -77,7 +77,7 @@ UserSchema.virtual("confirmpassword").
 
 UserSchema.methods.generateAuthenticationToken = async function () {
     const user = this;
-    const token = jwt.sign({ _id: user._id.toString() }, 'estorekey')
+    const token = jwt.sign({ _id: user._id.toString() }, 'estorekey', {expiresIn: 1800});
     user.tokens = user.tokens.concat({ token })
     try {
         await user.save();
