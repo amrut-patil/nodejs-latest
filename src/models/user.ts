@@ -65,7 +65,6 @@ UserSchema.pre('save', async function <IUserModel>(next) {
             this.password = await bcrytp.hash(this.password, 8);
         }
     } catch (error) {
-        console.log(error);
         throw new Error(error);
     }
     next();
@@ -82,13 +81,12 @@ UserSchema.methods.generateAuthenticationToken = async function () {
     try {
         await user.save();
     } catch (error) {
-        console.log(error);
         throw new Error(error);
     }
     return token;
 }
 
-//this is called whenever express calles stringify(), here we override the values
+//this is called whenever express calls stringify(), here we override the values
 UserSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();

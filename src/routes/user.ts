@@ -28,7 +28,6 @@ export class UserRouter {
                     response.status(201).send(user);
                 }).catch((error) => response.status(500).send(error));
             } catch (error) {
-                console.log("error while save");
                 response.status(500).send(error);
             }
         })

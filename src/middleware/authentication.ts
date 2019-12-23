@@ -6,7 +6,6 @@ export class Authentication {
 
     public static async authenticate(request: Request | any, response: Response, next: any) {
         try {
-            console.log("----------------authenticate---------------");
             const token = request.header('Authorization').replace('Bearer ', '');
             jwt.verify(token, 'estorekey', async (error, decoded) => {
                 if (error) {                   
@@ -25,7 +24,6 @@ export class Authentication {
 
             });
         } catch (error) {
-            console.log(error);
             response.status(401).send({ error: "Please authenticate." });
         }
     }
