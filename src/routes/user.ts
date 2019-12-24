@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { User } from '../models/user';
 import { request } from 'https';
 import { Authentication } from '../middleware/authentication';
+import { MongooseErrorHanlding } from '../utils/mongooseErrorHandling';
 
 export class UserRouter {
 
@@ -26,7 +27,9 @@ export class UserRouter {
             try {
                 user.save().then(() => {
                     response.status(201).send(user);
-                }).catch((error) => response.status(500).send(error));
+                }).catch((error) =>
+                    response.status(500).send(error)
+                );
             } catch (error) {
                 response.status(500).send(error);
             }
@@ -40,7 +43,7 @@ export class UserRouter {
                 const token = await user.generateAuthenticationToken();
                 response.send({ user, token });
             } catch (error) {
-                response.status(400).send(error);
+                response.status(400).send(MongooseErrorHanlding.getBuiltErrorMessage(error.message));
             }
         })
     }
@@ -56,7 +59,7 @@ export class UserRouter {
                 await request.user.save();
                 response.send();
             } catch (error) {
-                response.status(500).send(error);
+                response.status(500).send(MongooseErrorHanlding.getBuiltErrorMessage(error.message));
             }
         })
     }

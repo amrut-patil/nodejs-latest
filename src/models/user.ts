@@ -2,6 +2,7 @@ import { Document, Schema, Model, model } from "mongoose";
 import * as validator from "validator";
 import * as jwt from "jsonwebtoken";
 import * as bcrytp from "bcryptjs";
+import { MongooseErrorHanlding } from "../utils/mongooseErrorHandling";
 
 export interface IUserModel extends Document {
     email: string;
@@ -19,7 +20,7 @@ export var UserSchema: Schema = new Schema({
     email: {
         type: String,
         unique: true,
-        required: true,
+        required: [true, "Email is mandatory"],
         lowercase: true,
         trim: true,
         validate: (value) => {
@@ -31,15 +32,15 @@ export var UserSchema: Schema = new Schema({
     },
     firstname: {
         type: String,
-        required: true
+        required: [true, "First Name is mandatory"],
     },
     lastname: {
         type: String,
-        required: true
+        required: [true, "Last Name is mandatory"],
     },
     password: {
         type: String,
-        required: true,
+        required: [true, "Password is mandatory"],
         validate: (value) => {
             if (!validator.isLength(value, { min: 4 })) {
                 throw new Error('Password too short - minimum length is 4 characters');
@@ -70,6 +71,16 @@ UserSchema.pre('save', async function <IUserModel>(next) {
     next();
 });
 
+UserSchema.post('save', function (error, doc, next) {
+    if (error) {
+      next({
+        serverError: MongooseErrorHanlding.getErrorMessage(error, "Email")
+      });
+    } else {
+      next();
+    }
+  });
+
 UserSchema.virtual("confirmpassword").
     get(() => { return this.confirmpassword }).
     set((value) => { this.confirmpassword = value });
@@ -99,10 +110,10 @@ UserSchema.methods.toJSON = function () {
 
 UserSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email });
-    user.set('confirmpassword', user.password); //virtual fields are not set with findOne
     if (!user) {
-        throw new Error("Unable to login");
+        throw new Error("Email not registered");
     }
+    user.set('confirmpassword', user.password); //virtual fields are not set with findOne
     const isMatch = await bcrytp.compare(password, user.password);
     if (!isMatch) {
         throw new Error("Unable to login");

@@ -3,7 +3,6 @@ export class MongooseErrorHanlding {
 
     public static getErrorMessage(error: any, collectionName: string) {
         let errorMessage = {};
-        console.log(JSON.stringify(error));
 
         if (error.name == "MongoError") {
             if (error.code === 11000) {
@@ -28,6 +27,12 @@ export class MongooseErrorHanlding {
     public static getDeleteNoRecordErrorMessage() {
         let errorMessage = { serverError: {} };
         errorMessage.serverError["unknown"] = "Record doesn't exists";
+        return errorMessage;
+    }
+
+    public static getBuiltErrorMessage(message: string) {
+        let errorMessage = { serverError: {} };
+        errorMessage.serverError["unknown"] = message;
         return errorMessage;
     }
 }
