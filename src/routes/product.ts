@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { Product } from '../models/product';
 import { ApplicationConstants } from '../appConstants';
 import { Authentication } from '../middleware/authentication';
+import { MongooseErrorHanlding } from '../utils/mongooseErrorHandling';
 
 export class ProductRouter {
 
@@ -43,7 +44,6 @@ export class ProductRouter {
                 Product.findOneAndUpdate({ _id: mongoose.Types.ObjectId(product._id) }, product, { upsert: true, runValidators: true }).then(() => {
                     this.sendRealtimeUpdate(product, request.body._id ? ApplicationConstants.UPDATE : ApplicationConstants.INSERT);
                     response.status(201).send(product);
-
                 }).catch((error) => {
                     response.status(500).send(error);
                 })
@@ -55,9 +55,14 @@ export class ProductRouter {
 
     private setDeleteProductRoute() {
         this.router.delete('/product/:id', Authentication.authenticate, (request: Request, response: Response) => {
+
             Product.findByIdAndDelete({ _id: mongoose.Types.ObjectId(request.params.id) }).then((product) => {
-                this.sendRealtimeUpdate(product, ApplicationConstants.DELETE);
-                response.status(204).send();
+                if (product) {
+                    this.sendRealtimeUpdate(product, ApplicationConstants.DELETE);
+                    response.status(204).send();
+                } else {
+                    response.status(409).send(MongooseErrorHanlding.getDeleteNoRecordErrorMessage());
+                }
             }).catch((error) => {
                 response.status(409).send(error);
             })

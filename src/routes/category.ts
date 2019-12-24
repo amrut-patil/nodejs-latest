@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { Category } from '../models/category';
 import { ApplicationConstants } from '../appConstants';
 import { Authentication } from '../middleware/authentication';
+import { MongooseErrorHanlding } from '../utils/mongooseErrorHandling';
 
 export class CategoryRouter {
 
@@ -73,8 +74,12 @@ export class CategoryRouter {
     private setDeleteCategoryRoute() {
         this.router.delete("/category/:id", Authentication.authenticate, (request: Request, response: Response) => {
             Category.findByIdAndDelete({ _id: mongoose.Types.ObjectId(request.params.id) }).then((category) => {
-                this.sendRealtimeUpdate(category, ApplicationConstants.DELETE);
-                response.status(204).send();
+                if (category) {
+                    this.sendRealtimeUpdate(category, ApplicationConstants.DELETE);
+                    response.status(204).send();
+                } else {
+                    response.status(409).send(MongooseErrorHanlding.getDeleteNoRecordErrorMessage());
+                }
             }).catch((error) => {
                 response.status(409).send(error);
             })
