@@ -25,7 +25,7 @@ export var ProductSchema: Schema = new Schema({
 ProductSchema.post('findOneAndUpdate', function (error, doc, next) {
   if (error) {
     next({
-      serverError: MongooseErrorHanlding.getErrorMessage(error, "Product")
+      serverError: MongooseErrorHanlding.getErrorMessage(error, "product")
     });
   } else {
     next();

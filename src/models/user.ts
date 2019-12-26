@@ -74,7 +74,7 @@ UserSchema.pre('save', async function <IUserModel>(next) {
 UserSchema.post('save', function (error, doc, next) {
     if (error) {
       next({
-        serverError: MongooseErrorHanlding.getErrorMessage(error, "Email")
+        serverError: MongooseErrorHanlding.getErrorMessage(error, "user")
       });
     } else {
       next();

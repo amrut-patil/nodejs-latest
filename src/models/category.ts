@@ -25,7 +25,7 @@ export var CategorySchema: Schema = new Schema({
 CategorySchema.post('findOneAndUpdate', function (error, doc, next) {
     if (error) {
         next({
-            serverError: MongooseErrorHanlding.getErrorMessage(error, "Category")
+            serverError: MongooseErrorHanlding.getErrorMessage(error, "category")
         });
     } else {
         next();

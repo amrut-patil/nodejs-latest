@@ -1,12 +1,24 @@
 
 export class MongooseErrorHanlding {
 
+    static CollectionUniqueKeyMap = {
+        product: "name",
+        category: "name",
+        user: "email"
+    };
+    
+    static CollectionUniqueKeyMapLabel = {
+        product: "Product name",
+        category: "Category name",
+        user: "Email"
+    };
+
     public static getErrorMessage(error: any, collectionName: string) {
         let errorMessage = {};
 
         if (error.name == "MongoError") {
             if (error.code === 11000) {
-                errorMessage["name"] = collectionName + " name is already taken";
+                errorMessage[MongooseErrorHanlding.CollectionUniqueKeyMap[collectionName]] = MongooseErrorHanlding.CollectionUniqueKeyMapLabel[collectionName] + " is already taken";
             }
         }
         else if (error.name == "ValidationError") {
